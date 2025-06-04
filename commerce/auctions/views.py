@@ -1,12 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-
-from .models import User, Category, Listing
+from .forms import ListingForm
+from .models import User
 
 
 def index(request):
@@ -68,32 +68,10 @@ def register(request):
 @login_required
 def create_listing(request):
     if request.method == "POST":
-        title = request.POST["title"]
-        description = request.POST["description"]
-        starting_price = request.POST["starting_price"]
-        image_url = request.POST.get("image_url")
-        category_name = request.POST.get("category")
-        seller = request.user
-        
-        # Create listing with category if provided
-        listing = Listing(
-            title=title,
-            description=description,
-            starting_price=starting_price,
-            image_url=image_url,
-            seller=seller
-        )
-        
-        if category_name:
-            category = Category.objects.get(name=category_name)
-            listing.category = category
-            
-        listing.save()
-        return HttpResponseRedirect(reverse("index"))
+        form = ListingForm(request.POST)
+        if form.is_valid():
+            # code will be here
+            return HttpResponseRedirect(reverse("create_listings.html"))
     else:
-        # Get categories for the form
-        categories = Category.CATEGORY_CHOICES
-        return render(request, "auctions/create.html", {
-            "categories": categories
-        })
-    
+        form = ListingForm()
+    return render(request, "auctions/create_listings.html", {"form":form})
