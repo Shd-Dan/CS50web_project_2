@@ -1,16 +1,20 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .forms import ListingForm
-from .models import User
+
+from .models import User, Category, Listing
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    # Query data from database
+    all_listings = Listing.objects.all().values()
+    # Pass the listings to a template for display
+    # Return the rendered template with the listings
+    return render(request, "auctions/index.html", {"all_listings":all_listings})
 
 
 def login_view(request):
@@ -68,10 +72,32 @@ def register(request):
 @login_required
 def create_listing(request):
     if request.method == "POST":
-        form = ListingForm(request.POST)
-        if form.is_valid():
-            # code will be here
-            return HttpResponseRedirect(reverse("create_listings.html"))
+        title = request.POST["title"]
+        description = request.POST["description"]
+        starting_price = request.POST["starting_price"]
+        image_url = request.POST.get("image_url")
+        category_id = request.POST.get("category")
+        seller = request.user
+        
+        # Create listing with category if provided
+        listing = Listing(
+            title=title,
+            description=description,
+            starting_price=starting_price,
+            image_url=image_url,
+            seller=seller
+        )
+        
+        if category_id:
+            category = Category.objects.get(id=category_id)
+            listing.category = category
+            
+        listing.save()
+        return HttpResponseRedirect(reverse("index"))
     else:
-        form = ListingForm()
-    return render(request, "auctions/create_listings.html", {"form":form})
+        # Get categories for the form
+        categories = Category.objects.all()
+        return render(request, "auctions/create_listing.html", {
+            "categories": categories
+        })
+    

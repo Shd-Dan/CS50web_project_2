@@ -35,10 +35,10 @@ class Category(models.Model):
 class Listing(models.Model):
     title = models.CharField(max_length=64)
     description = models.TextField()
-    starting_price = models.DecimalField(max_digits=10, decimal_places=2)
+    starting_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     image_url = models.URLField(null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, related_name="listings", null=True, blank=True)
-    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings", null=True)
 
 
     def __str__(self):

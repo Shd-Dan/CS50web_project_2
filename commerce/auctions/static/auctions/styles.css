@@ -1,3 +1,42 @@
 body {
     padding: 10px;
 }
+
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important;
+}
+
+.card-title {
+    color: #2c3e50;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+
+.card-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.badge {
+    font-size: 0.9rem !important;
+    padding: 0.5rem 0.75rem;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.text-primary {
+    color: #2c3e50 !important;
+}
