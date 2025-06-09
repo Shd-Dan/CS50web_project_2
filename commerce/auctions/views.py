@@ -101,3 +101,10 @@ def create_listing(request):
             "categories": categories
         })
     
+def listing_page(request, listing_id:int):
+    # Query data from database
+    listing = Listing.objects.get(id=listing_id)
+    # Pass the listing to a template for display
+    # Return the rendered template with the listing
+    return render(request, "auctions/listing_page.html", {"listing":listing})
+
