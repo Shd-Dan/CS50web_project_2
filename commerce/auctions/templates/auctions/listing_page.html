@@ -1,19 +1,39 @@
 {% extends 'auctions/layout.html' %}
 
-
-{% block title %}Item Listing Page{% endblock %}
+{% block title %}{{ listing.title }} - Auctions{% endblock %}
 
 {% block body %}
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-primary mb-4">{{ listing.title }}</h2>
+                
+                <div class="mb-4">
+                    <h5 class="text-muted mb-2">Description</h5>
+                    <p class="card-text">{{ listing.description }}</p>
+                </div>
 
-    Title: {{listing.title}}
-    <br>
-    Description: {{listing.description}}}
-    <br>
-    Starting Bid: {{listing.starting_price}}
-    <br>
-    Image: {{listing.image_url}}}
-    <br>
-    Category
-    Seller
+                <div class="mb-4">
+                    <h5 class="text-muted mb-2">Starting Bid</h5>
+                    <span class="badge bg-success fs-4">${{ listing.starting_price }}</span>
+                </div>
 
+                <div class="mb-4">
+                    <h5 class="text-muted mb-2">Image</h5>
+                    {% if listing.image_url %}
+                        <img src="{{ listing.image_url }}" class="img-fluid rounded" alt="{{ listing.title }}" style="max-height: 300px; object-fit: contain;">
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="height: 200px;">
+                            <p class="mb-0">No Image Available</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="text-muted mb-2">Category</h5>
+                    <p class="card-text">{{ listing.category|default:"Uncategorized" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
