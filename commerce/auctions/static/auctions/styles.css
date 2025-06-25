@@ -238,5 +238,78 @@ p {
     100% { transform: rotate(360deg); }
 }
 
+.listing-title-emph {
+    font-size: 2.5rem;
+    color: #222;
+    text-shadow: 0 2px 8px rgba(218,165,32,0.12);
+    position: relative;
+}
+
+.listing-title-underline {
+    display: block;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, gold 0%, #fffbe6 100%);
+    margin: 0.5rem auto 0;
+    border-radius: 2px;
+}
+
+.listing-title-modern {
+    font-size: 2.7rem;
+    font-weight: 800;
+    text-align: center;
+    color: #3a8dde;
+    /* Fallback for browsers that do not support background-clip: text */
+    background: linear-gradient(90deg, #3a8dde 0%, #8f6ed5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    text-shadow: 0 4px 16px rgba(60,60,120,0.10);
+    letter-spacing: 1.5px;
+    position: relative;
+    margin-bottom: 1.2rem;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .listing-title-modern {
+        color: transparent;
+    }
+}
+
+.listing-title-modern-underline {
+    display: block;
+    width: 90px;
+    height: 5px;
+    background: linear-gradient(90deg, #3a8dde 0%, #8f6ed5 100%);
+    margin: 0.7rem auto 0;
+    border-radius: 3px;
+    transition: width 0.3s cubic-bezier(.4,2,.6,1);
+    border-bottom: 3px solid #3a8dde; /* fallback for browsers without gradient */
+}
+
+.listing-title-modern:hover .listing-title-modern-underline {
+    width: 120px;
+}
+
+.listing-title-simple {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #1a237e;
+    text-align: center;
+    margin-bottom: 1.2rem;
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.listing-title-simple-underline {
+    display: block;
+    width: 80px;
+    height: 5px;
+    background: #ffb300;
+    margin: 0.7rem auto 0;
+    border-radius: 3px;
+}
+
 
 

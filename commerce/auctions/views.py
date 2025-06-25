@@ -108,13 +108,16 @@ def listing_page(request, listing_id: int):
     is_in_watchlist = False
     if request.user.is_authenticated:
         is_in_watchlist = Watchlist.objects.filter(user=request.user, listing=listing).exists()
+    # Count the number of bids for this listing
+    bid_count = listing.bids.count()
     # Pass the listing to a template for display
     # Return the rendered template with the listing
     return render(
         request,
         "auctions/listing_page.html",
         {"listing": listing,
-         "is_in_watchlist": is_in_watchlist})
+         "is_in_watchlist": is_in_watchlist,
+         "bid_count": bid_count})
 
 
 @login_required
@@ -164,16 +167,28 @@ def delete_item_from_watchlist(request):
 @login_required()
 def place_bid(request):
     if request.method == "POST":
-        # Retrieve details from the form
+        # Retrieve user inserted data from the form
         amount = request.POST["bid_amount"]
         bidder = request.user
         listing_id = request.POST.get("listing_id")
+        print(amount, bidder, listing_id)
 
         try:
             amount = float(amount)
             listing = get_object_or_404(Listing, id=listing_id)
 
-            print(f"Final data - Amount: {amount}, Bidder: {bidder}, Listing: {listing}")
+            # Check if the bid is higher than the current bid or at least the starting price
+            all_bids = [float(amount) for amount in Bid.objects.filter(listing=listing).values_list('amount', flat=True)]
+            if all_bids:
+                highest_bid = max(all_bids)
+                if amount <= highest_bid:
+                    messages.error(request, "Your bid must be higher than the current bid.")
+                    return redirect("listing_page", listing_id=listing_id)
+            else:
+                # No previous bids: must be at least as large as starting price
+                if amount < float(listing.starting_price):
+                    messages.error(request, "Your bid must be at least as large as the starting bid.")
+                    return redirect("listing_page", listing_id=listing_id)
 
             # Create and save bid here
             bid = Bid(
