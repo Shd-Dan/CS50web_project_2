@@ -5,8 +5,9 @@ from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.utils import timezone
 
-from .models import User, Category, Listing, Watchlist, Bid
+from .models import User, Category, Listing, Watchlist, Bid, Comment
 
 
 def index(request):
@@ -111,13 +112,26 @@ def listing_page(request, listing_id: int):
     # Count the number of bids for this listing
     bid_count = listing.bids.count()
     # Pass the listing to a template for display
+    bids = Bid.objects.filter(listing=listing).order_by('bid_time')
+    is_active = listing.is_active
+    winner = Bid.objects.filter(listing=listing).order_by('-amount').first()
+    # Retrieve all comments for this listing
+    all_comments = Comment.objects.filter(listing=listing).order_by('created_at')
+    # comments = all_comments.exists()
     # Return the rendered template with the listing
     return render(
         request,
         "auctions/listing_page.html",
-        {"listing": listing,
-         "is_in_watchlist": is_in_watchlist,
-         "bid_count": bid_count})
+        {
+            "listing": listing,
+            "is_in_watchlist": is_in_watchlist,
+            "bid_count": bid_count,
+            "bids": bids,
+            "is_active": is_active,
+            "winner": winner,
+            "all_comments": all_comments
+        },
+    )
 
 
 @login_required
@@ -171,14 +185,14 @@ def place_bid(request):
         amount = request.POST["bid_amount"]
         bidder = request.user
         listing_id = request.POST.get("listing_id")
-        print(amount, bidder, listing_id)
 
         try:
             amount = float(amount)
             listing = get_object_or_404(Listing, id=listing_id)
 
             # Check if the bid is higher than the current bid or at least the starting price
-            all_bids = [float(amount) for amount in Bid.objects.filter(listing=listing).values_list('amount', flat=True)]
+            all_bids = [float(amount) for amount in
+                        Bid.objects.filter(listing=listing).values_list('amount', flat=True)]
             if all_bids:
                 highest_bid = max(all_bids)
                 if amount <= highest_bid:
@@ -206,3 +220,44 @@ def place_bid(request):
             return redirect("listing_page", listing_id=listing_id)
 
     return redirect("index")
+
+
+def close_listing_auction(request):
+    if request.method == 'POST':
+        listing_id = request.POST.get("listing_id")
+        listing = get_object_or_404(Listing, id=listing_id)
+        if listing.is_active:
+            listing.is_active = False
+            listing.save()
+        return HttpResponseRedirect(reverse("listing_page", args=[listing_id]))
+    return render(request, "auctions/listing_page.html")
+
+
+def add_comment(request):
+    # Logic is retrieve comment from DB comments and display it
+    if request.method == 'POST':
+        content = request.POST.get("content", "").strip()
+        commenter = request.user
+        listing_id = request.POST.get("listing_id")
+        listing = get_object_or_404(Listing, id=listing_id)
+
+        # Validating if comment is empty
+        if not content:
+            messages.error(request, "Please write comment.")
+            return redirect('listing_page', listing_id=listing_id)
+
+        # Create and save comment
+        comment = Comment(
+            content=content,
+            created_at=timezone.now(),
+            commenter=commenter,
+            listing=listing
+        )
+        comment.save()
+
+        messages.success(request, "Comment added successfully!")
+        return redirect("listing_page", listing_id=listing_id)
+
+    return render(request, "auctions/listing_page.html")
+
+

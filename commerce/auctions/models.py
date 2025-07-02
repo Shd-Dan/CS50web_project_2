@@ -39,6 +39,7 @@ class Listing(models.Model):
     image_url = models.URLField(null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, related_name="listings", null=True, blank=True)
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings", null=True)
+    is_active = models.BooleanField(default=True)
 
 
     def __str__(self):
@@ -62,7 +63,7 @@ class Comment(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
     
     def __str__(self):
-        return f"{self.commenter.username} commented on {self.listing.title}"
+        return f"User:{self.commenter.username} commented on {self.listing.title} next {self.content}"
 
 
 class Watchlist(models.Model):
