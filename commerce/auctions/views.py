@@ -141,7 +141,7 @@ def add_item_to_watchlist(request):
         try:
             listing_to_add = Listing.objects.get(id=listing_id)
             user = request.user
-            # Check if Watchlist exists
+            # Check if Watchlist object exists
             if not Watchlist.objects.filter(user=user, listing=listing_to_add).exists():
                 add_listing = Watchlist(
                     user=user,
@@ -261,3 +261,14 @@ def add_comment(request):
     return render(request, "auctions/listing_page.html")
 
 
+def view_watchlist(request):
+    # Retrieve listings from db related to specific user
+    current_user_id = request.user.id
+    user_watchlist = Watchlist.objects.select_related('listing').filter(user=current_user_id)
+    return render(
+        request,
+        "auctions/watchlist.html",
+        {
+            "user_watchlist":user_watchlist
+        }
+    )
